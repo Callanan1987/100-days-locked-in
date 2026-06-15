@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#e8002d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zero Excuses">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="100-day locked-in mission tracker. No soft weeks. No excuses.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<title>100 DAYS. ZERO EXCUSES.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--black:#080808;--surface:#111;--card:#161616;--border:#222;--border2:#2e2e2e;--red:#e8002d;--reddim:#6b0014;--amber:#f59e0b;--green:#22c55e;--greendim:#14532d;--text:#efefef;--muted:#555;--muted2:#333;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;padding-bottom:var(--sab);}
+
+/* INSTALL BANNER */
+.install-bar{background:#0d0005;border-bottom:1px solid var(--reddim);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.install-bar.hidden{display:none;}
+.install-bar span{font-size:12px;color:var(--muted);}
+.install-bar strong{color:var(--text);}
+.ibtns{display:flex;gap:8px;flex-shrink:0;}
+.ibtn{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;padding:6px 14px;border:none;cursor:pointer;}
+.ibtn.yes{background:var(--red);color:#fff;}
+.ibtn.no{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+
+/* OFFLINE PILL */
+.offline-pill{position:fixed;bottom:calc(16px + var(--sab));left:50%;transform:translateX(-50%);background:#1a0005;border:1px solid var(--reddim);color:var(--red);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:6px 16px;z-index:500;pointer-events:none;transition:opacity .3s;}
+.offline-pill.hidden{opacity:0;}
+
+/* HEADER */
+header{background:var(--black);border-bottom:2px solid var(--red);padding:16px 24px;padding-top:calc(16px + var(--sat));position:sticky;top:0;z-index:100;}
+.hinner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--red);line-height:1;}
+.logo span{color:var(--text);}
+.hstats{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+.hstat .v{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);line-height:1;}
+.hstat .l{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:1px;}
+.logbtn{background:var(--red);color:#fff;border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:10px 18px;cursor:pointer;transition:background .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.logbtn:hover,.logbtn:active{background:#ff0033;}
+
+/* SETUP */
+.setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;}
+.setup-overlay.hidden{display:none;}
+.setup-box{background:var(--surface);border:1px solid var(--border2);border-top:4px solid var(--red);width:100%;max-width:460px;padding:36px;max-height:90vh;overflow-y:auto;}
+.setup-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:4px;color:var(--red);margin-bottom:4px;}
+.setup-sub{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:28px;}
+.setup-form{display:flex;flex-direction:column;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;}
+input,select,textarea{background:var(--black);border:1px solid var(--border2);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:9px 12px;width:100%;outline:none;transition:border-color .15s;-webkit-appearance:none;border-radius:0;}
+input:focus,select:focus,textarea:focus{border-color:var(--red);}
+select option{background:var(--black);}
+textarea{resize:vertical;min-height:65px;}
+.setup-btn{background:var(--red);color:#fff;border:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;padding:15px;cursor:pointer;margin-top:6px;transition:background .15s;width:100%;}
+.setup-btn:hover,.setup-btn:active{background:#ff0033;}
+
+/* MAIN */
+main{max-width:1400px;margin:0 auto;padding:22px 24px;}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.tbtn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;padding:7px 14px;cursor:pointer;transition:border-color .1s,color .1s;}
+.tbtn:hover,.tbtn:active{border-color:var(--red);color:var(--text);}
+
+/* PROMISE STRIP */
+.promise{background:#0d0005;border:1px solid var(--reddim);padding:12px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;}
+.promise-txt{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--red);}
+.promise-txt span{color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;letter-spacing:0;font-weight:400;display:block;margin-top:1px;}
+
+/* MISSION STATS */
+.mstats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:24px;}
+.mstat{background:var(--card);padding:16px 18px;}
+.mstat .big{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;color:var(--red);}
+.mstat .big.g{color:var(--green);}
+.mstat .big.a{color:var(--amber);}
+.mstat .lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.mstat .sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:26px;}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.prog-top span:first-child{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.prog-top span:last-child{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);}
+.prog-track{height:5px;background:var(--border2);overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--reddim),var(--red));transition:width .6s ease;}
+
+/* SEC TITLE */
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* DAYS GRID */
+.days-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:28px;}
+.dc{aspect-ratio:1;background:var(--card);border:1px solid var(--border);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:border-color .1s,transform .1s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+.dc:hover{border-color:var(--red);transform:scale(1.06);z-index:2;}
+.dc:active{transform:scale(0.96);}
+.dc.done{background:#0b1a10;border-color:#1a4228;}
+.dc.done::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(34,197,94,.07) 0%,transparent 60%);}
+.dc.today{border-color:var(--red);background:#150009;animation:pb 2s ease-in-out infinite;}
+.dc.missed{background:#120808;border-color:#2a1010;}
+.dc.future{opacity:.25;cursor:default;}
+.dc .dn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);font-weight:600;}
+.dc.done .dn{color:var(--green);}
+.dc.today .dn{color:var(--red);}
+.dc .di{font-size:11px;line-height:1;}
+.dc.today .di{color:var(--red);font-size:9px;letter-spacing:1px;}
+@keyframes pb{0%,100%{box-shadow:0 0 0 0 rgba(232,0,45,.4);}50%{box-shadow:0 0 0 5px rgba(232,0,45,0);}}
+
+/* PANELS */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+.panel{background:var(--card);border:1px solid var(--border);padding:20px;}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+
+/* CHART */
+.chart{background:var(--black);border:1px solid var(--border);height:140px;display:flex;align-items:flex-end;gap:2px;padding:8px 8px 0;overflow:hidden;position:relative;}
+.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.bar{flex:1;min-height:2px;transition:background .2s;cursor:pointer;position:relative;}
+.bar:hover .tip,.bar:active .tip{display:block;}
+.tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 6px;white-space:nowrap;display:none;color:var(--text);z-index:10;pointer-events:none;}
+
+/* HABITS */
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
+.hrow:last-child{border-bottom:none;}
+.hname{font-size:12px;font-weight:500;display:flex;align-items:center;gap:7px;}
+.hicon{font-size:15px;}
+.hdots{display:flex;gap:3px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.dot.on{background:var(--green);}
+.dot.off{background:var(--reddim);}
+.hpct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--amber);}
+
+/* STATS TABLE */
+.srow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
+.srow:last-child{border-bottom:none;}
+.srow-l{font-size:12px;font-weight:500;display:flex;align-items:center;gap:7px;}
+.srow-v{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);}
+
+/* WEIGHT */
+.wdisp{display:flex;align-items:baseline;gap:4px;margin-bottom:12px;}
+.wbig{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--text);line-height:1;}
+.wunit{color:var(--muted);font-size:15px;}
+.wbadge{font-family:'JetBrains Mono',monospace;font-size:13px;padding:2px 8px;margin-left:8px;}
+.wbadge.loss{background:#0a1a0f;color:var(--green);}
+.wbadge.gain{background:#1a0808;color:var(--red);}
+
+/* LOG MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-top:3px solid var(--red);width:100%;max-width:620px;max-height:92vh;overflow-y:auto;padding:28px;position:relative;}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.mtitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--red);}
+.mclose{background:none;border:1px solid var(--border2);color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:border-color .1s,color .1s;}
+.mclose:hover,.mclose:active{border-color:var(--red);color:var(--red);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.fgrid .fg.full{grid-column:1/-1;}
+.section-sep{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:4px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.toggles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;}
+.tog{display:flex;align-items:center;justify-content:space-between;background:var(--black);border:1px solid var(--border);padding:9px 11px;cursor:pointer;transition:border-color .1s;gap:6px;-webkit-tap-highlight-color:transparent;}
+.tog:hover{border-color:var(--border2);}
+.tog.on{border-color:var(--green);background:#08140e;}
+.toglbl{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.togico{font-size:14px;}
+.togsw{width:30px;height:16px;background:var(--border);border-radius:8px;position:relative;transition:background .15s;flex-shrink:0;}
+.tog.on .togsw{background:var(--green);}
+.togsw::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .15s;}
+.tog.on .togsw::after{transform:translateX(14px);}
+.score-prev{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--amber);padding:11px 14px;background:var(--black);border:1px solid var(--border);margin-bottom:16px;}
+.savebtn{width:100%;background:var(--red);color:#fff;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;padding:14px;cursor:pointer;transition:background .15s;}
+.savebtn:hover,.savebtn:active{background:#ff0033;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.mstats{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.panels{grid-template-columns:1fr;}.mstats{grid-template-columns:repeat(2,1fr);}.hstats{gap:12px;}.hstat .v{font-size:18px;}}
+@media(max-width:600px){main{padding:12px;}header{padding-left:14px;padding-right:14px;}.fgrid{grid-template-columns:1fr 1fr;}.toggles{grid-template-columns:1fr 1fr;}.days-grid{gap:2px;}.dc .dn{font-size:9px;}}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--black);}
+::-webkit-scrollbar-thumb{background:var(--border2);}
+</style>
+</head>
+<body>
+
+<!-- OFFLINE INDICATOR -->
+<div class="offline-pill hidden" id="offlinePill">⚡ Offline — Data Safe</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-bar hidden" id="installBar">
+  <span><strong>Add to Home Screen</strong> — works fully offline, no App Store needed</span>
+  <div class="ibtns">
+    <button class="ibtn yes" id="installBtn">Install</button>
+    <button class="ibtn no" onclick="dismissInstall()">Later</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-box">
+    <div class="setup-title">ZERO EXCUSES</div>
+    <div class="setup-sub">100 Day Mission — Lock In Your Start</div>
+    <div class="setup-form">
+      <div class="fg2">
+        <div class="fg"><label>Mission Start Date</label><input type="date" id="sDate"></div>
+        <div class="fg"><label>Starting Weight (kg)</label><input type="number" id="sWeight" step="0.1" placeholder="e.g. 90.5" inputmode="decimal"></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Target Weight (kg)</label><input type="number" id="sTgt" step="0.1" placeholder="optional" inputmode="decimal"></div>
+        <div class="fg"><label>Calories Target / Day</label><input type="number" id="sCal" placeholder="e.g. 2200" inputmode="numeric"></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Protein Target (g)</label><input type="number" id="sProt" placeholder="e.g. 180" inputmode="numeric"></div>
+        <div class="fg"><label>Water Target (L)</label><input type="number" id="sWater" step="0.1" placeholder="e.g. 3.0" inputmode="decimal"></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Steps Target</label><input type="number" id="sSteps" placeholder="e.g. 10000" inputmode="numeric"></div>
+        <div class="fg"><label>Sleep Target (hrs)</label><input type="number" id="sSleep" step="0.5" placeholder="e.g. 7.5" inputmode="decimal"></div>
+      </div>
+      <button class="setup-btn" onclick="saveSetup()">⚡ LOCK IN — START MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="hinner">
+    <div class="logo">100 DAYS<span>. ZERO EXCUSES.</span></div>
+    <div class="hstats">
+      <div class="hstat"><div class="v" id="hLogged">0</div><div class="l">Days Logged</div></div>
+      <div class="hstat"><div class="v" id="hStreak">0</div><div class="l">Streak</div></div>
+      <div class="hstat"><div class="v" id="hScore">0</div><div class="l">Total Score</div></div>
+      <div class="hstat"><div class="v" id="hPct">0%</div><div class="l">Mission %</div></div>
+      <div class="hstat"><div class="v" id="hMoney">£0</div><div class="l">Money Saved</div></div>
+      <button class="logbtn" onclick="openModal(null)">+ LOG TODAY</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="promise">
+    <div style="font-size:22px">⚡</div>
+    <div>
+      <div class="promise-txt">THE MISSION IS ACTIVE
+        <span id="promiseSub">Set your start date and lock in. No soft weeks. No excuses.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="tbtn" onclick="exportData()">⬇ Export Backup</button>
+    <button class="tbtn" onclick="document.getElementById('importFile').click()">⬆ Import Backup</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="tbtn" onclick="resetMission()" style="color:#6b0014;border-color:#2a1010;">↺ Reset Mission</button>
+  </div>
+
+  <!-- MISSION STATS -->
+  <div class="mstats">
+    <div class="mstat"><div class="big" id="mLogged">0</div><div class="lbl">Days Logged</div><div class="sub" id="mRemain">100 remaining</div></div>
+    <div class="mstat"><div class="big a" id="mAvg">—</div><div class="lbl">Avg Score /10</div><div class="sub" id="mTotal">Total: 0 pts</div></div>
+    <div class="mstat"><div class="big g" id="mWeight">—</div><div class="lbl">Current Weight</div><div class="sub" id="mWeightSub">Start: — kg</div></div>
+    <div class="mstat"><div class="big" id="mWorkouts">0</div><div class="lbl">Workouts Hit</div><div class="sub" id="mWorkoutPct">0% hit rate</div></div>
+    <div class="mstat"><div class="big a" id="mStreak">0</div><div class="lbl">Current Streak</div><div class="sub" id="mBest">Best: 0</div></div>
+    <div class="mstat"><div class="big g" id="mMoney">£0</div><div class="lbl">Money Saved</div><div class="sub" id="mMoneyAvg">£0/day avg</div></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-wrap">
+    <div class="prog-top"><span>Mission Progress</span><span id="progLabel">Day 0 of 100</span></div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="stitle">Mission Grid — 100 Days</div>
+  <div class="days-grid" id="daysGrid"></div>
+
+  <!-- PANELS -->
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-title">Weight Journey</div>
+      <div class="wdisp">
+        <div class="wbig" id="wNow">—</div>
+        <div class="wunit">kg</div>
+        <div class="wbadge" id="wBadge" style="display:none"></div>
+      </div>
+      <div class="chart" id="wChart"><div class="chart-empty" id="wEmpty">No weight data yet</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Daily Score — Last 30 Days</div>
+      <div class="chart" id="sChart"><div class="chart-empty" id="sEmpty">No scores yet</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Habit Compliance — Last 7 Days</div>
+      <div id="habitRows"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Stats Overview</div>
+      <div id="statsRows"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- LOG MODAL -->
+<div class="modal-overlay" id="logModal">
+  <div class="modal">
+    <div class="mhead">
+      <div class="mtitle" id="mtitle">LOG DAY 1</div>
+      <button class="mclose" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="section-sep">📊 Body & Nutrition</div>
+    <div class="fgrid">
+      <div class="fg"><label>Weight (kg)</label><input type="number" id="fWeight" step="0.1" placeholder="90.5" inputmode="decimal"></div>
+      <div class="fg"><label>Calories Actual</label><input type="number" id="fCals" placeholder="2100" inputmode="numeric"></div>
+      <div class="fg"><label>Protein (g)</label><input type="number" id="fProt" placeholder="180" inputmode="numeric"></div>
+      <div class="fg"><label>Water (L)</label><input type="number" id="fWater" step="0.1" placeholder="3.0" inputmode="decimal"></div>
+      <div class="fg"><label>Sleep (hrs)</label><input type="number" id="fSleep" step="0.5" placeholder="7.5" inputmode="decimal"></div>
+      <div class="fg"><label>Steps</label><input type="number" id="fSteps" placeholder="10000" inputmode="numeric"></div>
+    </div>
+
+    <div class="section-sep">💪 Training & Mindset</div>
+    <div class="fgrid">
+      <div class="fg"><label>Workout Type</label>
+        <select id="fWorkout">
+          <option value="">— Rest Day —</option>
+          <option value="Strength">Strength</option>
+          <option value="Cardio">Cardio</option>
+          <option value="HIIT">HIIT</option>
+          <option value="Mobility">Mobility</option>
+          <option value="Walk">Walk</option>
+          <option value="Sport">Sport</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Mood (1–10)</label><input type="number" id="fMood" min="1" max="10" placeholder="7" inputmode="numeric"></div>
+      <div class="fg"><label>Energy (1–10)</label><input type="number" id="fEnergy" min="1" max="10" placeholder="7" inputmode="numeric"></div>
+      <div class="fg"><label>Learning (min)</label><input type="number" id="fLearn" placeholder="30" inputmode="numeric"></div>
+      <div class="fg"><label>Money Saved (£)</label><input type="number" id="fMoney" step="0.5" placeholder="0" inputmode="decimal"></div>
+    </div>
+
+    <div class="section-sep">🔒 Daily Promises</div>
+    <div class="toggles">
+      <div class="tog" id="tMobility" onclick="tog('tMobility')"><div class="toglbl"><span class="togico">🧘</span>Mobility Done</div><div class="togsw"></div></div>
+      <div class="tog" id="tAlcohol" onclick="tog('tAlcohol')"><div class="toglbl"><span class="togico">🚫</span>No Alcohol</div><div class="togsw"></div></div>
+      <div class="tog" id="tTakeaway" onclick="tog('tTakeaway')"><div class="toglbl"><span class="togico">🍕</span>No Takeaway</div><div class="togsw"></div></div>
+      <div class="tog" id="tDiet" onclick="tog('tDiet')"><div class="toglbl"><span class="togico">✅</span>Diet Hit</div><div class="togsw"></div></div>
+      <div class="tog" id="tPhoto" onclick="tog('tPhoto')"><div class="toglbl"><span class="togico">📸</span>Progress Photo</div><div class="togsw"></div></div>
+      <div class="tog" id="tPromise" onclick="tog('tPromise')"><div class="toglbl"><span class="togico">⚡</span>Promise Kept</div><div class="togsw"></div></div>
+    </div>
+
+    <div class="fgrid" style="margin-bottom:16px">
+      <div class="fg full"><label>Notes / Victory of the Day</label><textarea id="fNotes" placeholder="What did you crush today?"></textarea></div>
+    </div>
+
+    <div class="score-prev">Score Preview: <span id="scorePrev" style="color:var(--red)">—/10</span> &nbsp;|&nbsp; <span id="scoreBreak" style="color:var(--muted);font-size:11px;"></span></div>
+    <button class="savebtn" onclick="saveDay()">⚡ LOCK IT IN — ZERO EXCUSES</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let S = JSON.parse(localStorage.getItem('ZE100') || 'null') || {
+  startDate:null, startWeight:null, targetWeight:null,
+  calTarget:2200, protTarget:180, waterTarget:3, stepsTarget:10000, sleepTarget:7.5,
+  days:{}
+};
+let editDay = null;
+let deferredPrompt = null;
+
+function save(){ localStorage.setItem('ZE100', JSON.stringify(S)); }
+
+// ── DATE HELPERS ──
+function today(){ return new Date().toISOString().split('T')[0]; }
+function dayNum(ds){
+  if(!S.startDate) return null;
+  const diff = Math.round((new Date(ds||today()) - new Date(S.startDate)) / 86400000);
+  return diff + 1;
+}
+function dateForDay(n){
+  if(!S.startDate) return null;
+  const d = new Date(S.startDate);
+  d.setDate(d.getDate() + n - 1);
+  return d.toISOString().split('T')[0];
+}
+function todayN(){ return Math.max(1, dayNum(today())); }
+
+// ── SCORE CALC ──
+function calcScore(e){
+  let s = 0, parts = [];
+  if(e.workout){ s+=2; parts.push('Workout +2'); }
+  if(e.dietHit){ s+=1; parts.push('Diet +1'); }
+  if(e.noAlcohol){ s+=1; parts.push('No Alcohol +1'); }
+  if(e.noTakeaway){ s+=1; parts.push('No Takeaway +1'); }
+  if(e.promiseKept){ s+=1; parts.push('Promise +1'); }
+  if(e.mobility){ s+=0.5; parts.push('Mobility +0.5'); }
+  if(e.photo){ s+=0.5; parts.push('Photo +0.5'); }
+  if((e.water||0) >= (S.waterTarget||3)){ s+=0.5; parts.push('Water +0.5'); }
+  if((e.sleep||0) >= (S.sleepTarget||7.5)){ s+=0.5; parts.push('Sleep +0.5'); }
+  if((e.steps||0) >= (S.stepsTarget||10000)){ s+=0.5; parts.push('Steps +0.5'); }
+  if((e.learning||0) >= 20){ s+=0.5; parts.push('Learning +0.5'); }
+  return { score: Math.min(10, Math.round(s*2)/2), parts };
+}
+
+// ── SETUP ──
+function saveSetup(){
+  const d = document.getElementById('sDate').value;
+  if(!d){ alert('Set a start date first.'); return; }
+  S.startDate = d;
+  S.startWeight = parseFloat(document.getElementById('sWeight').value)||null;
+  S.targetWeight = parseFloat(document.getElementById('sTgt').value)||null;
+  S.calTarget = parseInt(document.getElementById('sCal').value)||2200;
+  S.protTarget = parseInt(document.getElementById('sProt').value)||180;
+  S.waterTarget = parseFloat(document.getElementById('sWater').value)||3;
+  S.stepsTarget = parseInt(document.getElementById('sSteps').value)||10000;
+  S.sleepTarget = parseFloat(document.getElementById('sSleep').value)||7.5;
+  save(); hide('setupOverlay'); render();
+}
+
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+
+// ── TOGGLES ──
+function tog(id){ document.getElementById(id).classList.toggle('on'); updatePrev(); }
+
+function updatePrev(){
+  const e = getForm();
+  const {score, parts} = calcScore(e);
+  document.getElementById('scorePrev').textContent = score+'/10';
+  document.getElementById('scoreBreak').textContent = parts.join(' · ');
+}
+
+['fWeight','fCals','fProt','fWater','fSleep','fSteps','fWorkout','fMood','fEnergy','fLearn','fMoney']
+  .forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',updatePrev); });
+
+function getForm(){
+  return {
+    weight: parseFloat(document.getElementById('fWeight').value)||null,
+    calActual: parseInt(document.getElementById('fCals').value)||null,
+    protein: parseInt(document.getElementById('fProt').value)||null,
+    water: parseFloat(document.getElementById('fWater').value)||null,
+    sleep: parseFloat(document.getElementById('fSleep').value)||null,
+    steps: parseInt(document.getElementById('fSteps').value)||null,
+    workout: document.getElementById('fWorkout').value,
+    mood: parseInt(document.getElementById('fMood').value)||null,
+    energy: parseInt(document.getElementById('fEnergy').value)||null,
+    learning: parseInt(document.getElementById('fLearn').value)||null,
+    moneySaved: parseFloat(document.getElementById('fMoney').value)||0,
+    notes: document.getElementById('fNotes').value,
+    mobility: document.getElementById('tMobility').classList.contains('on'),
+    noAlcohol: document.getElementById('tAlcohol').classList.contains('on'),
+    noTakeaway: document.getElementById('tTakeaway').classList.contains('on'),
+    dietHit: document.getElementById('tDiet').classList.contains('on'),
+    photo: document.getElementById('tPhoto').classList.contains('on'),
+    promiseKept: document.getElementById('tPromise').classList.contains('on'),
+  };
+}
+
+// ── MODAL ──
+function openModal(n){
+  const tn = todayN();
+  editDay = n || tn;
+  document.getElementById('mtitle').textContent =
+    editDay===tn ? `LOG DAY ${editDay} — TODAY` : `EDIT DAY ${editDay}`;
+
+  ['fWeight','fCals','fProt','fWater','fSleep','fSteps','fMood','fEnergy','fLearn','fMoney','fNotes']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('fWorkout').value='';
+  ['tMobility','tAlcohol','tTakeaway','tDiet','tPhoto','tPromise']
+    .forEach(id=>document.getElementById(id).classList.remove('on'));
+
+  const ds = dateForDay(editDay);
+  const ex = ds ? S.days[ds] : null;
+  if(ex){
+    if(ex.weight) document.getElementById('fWeight').value=ex.weight;
+    if(ex.calActual) document.getElementById('fCals').value=ex.calActual;
+    if(ex.protein) document.getElementById('fProt').value=ex.protein;
+    if(ex.water) document.getElementById('fWater').value=ex.water;
+    if(ex.sleep) document.getElementById('fSleep').value=ex.sleep;
+    if(ex.steps) document.getElementById('fSteps').value=ex.steps;
+    if(ex.workout) document.getElementById('fWorkout').value=ex.workout;
+    if(ex.mood) document.getElementById('fMood').value=ex.mood;
+    if(ex.energy) document.getElementById('fEnergy').value=ex.energy;
+    if(ex.learning) document.getElementById('fLearn').value=ex.learning;
+    if(ex.moneySaved) document.getElementById('fMoney').value=ex.moneySaved;
+    if(ex.notes) document.getElementById('fNotes').value=ex.notes;
+    if(ex.mobility) document.getElementById('tMobility').classList.add('on');
+    if(ex.noAlcohol) document.getElementById('tAlcohol').classList.add('on');
+    if(ex.noTakeaway) document.getElementById('tTakeaway').classList.add('on');
+    if(ex.dietHit) document.getElementById('tDiet').classList.add('on');
+    if(ex.photo) document.getElementById('tPhoto').classList.add('on');
+    if(ex.promiseKept) document.getElementById('tPromise').classList.add('on');
+  }
+  updatePrev();
+  document.getElementById('logModal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('logModal').classList.remove('open'); editDay=null; }
+
+function saveDay(){
+  if(!editDay) return;
+  const ds = dateForDay(editDay);
+  if(!ds) return;
+  const e = getForm();
+  const {score} = calcScore(e);
+  e.score = score;
+  S.days[ds] = e;
+  save(); closeModal(); render();
+}
+
+// ── EXPORT / IMPORT / RESET ──
+function exportData(){
+  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zero-excuses-backup-' + today() + '.json';
+  a.click();
+}
+function importData(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if(d.startDate !== undefined){ S = d; save(); render(); alert('Imported!'); }
+      else alert('Invalid backup file.');
+    } catch(err){ alert('Could not read: ' + err.message); }
+  };
+  r.readAsText(file);
+  ev.target.value = '';
+}
+function resetMission(){
+  if(!confirm('Reset entire mission? All data will be deleted.')) return;
+  if(!confirm('FINAL WARNING — cannot be undone. Reset?')) return;
+  localStorage.removeItem('ZE100');
+  location.reload();
+}
+
+// ── RENDER ──
+function render(){
+  if(!S.startDate){ show('setupOverlay'); return; }
+  hide('setupOverlay');
+
+  const tn = todayN();
+  const logged = Object.values(S.days).filter(Boolean).length;
+  let totalScore=0, scoreCount=0, workouts=0, totalMoney=0;
+  let weights=[], scores=[];
+
+  for(let n=1;n<=100;n++){
+    const ds = dateForDay(n);
+    const e = ds ? S.days[ds] : null;
+    if(e){
+      if(e.score!=null){ totalScore+=e.score; scoreCount++; }
+      if(e.workout) workouts++;
+      totalMoney += (e.moneySaved||0);
+      if(e.weight) weights.push({n, v:e.weight});
+      scores.push({n, v:e.score||0});
+    }
+  }
+
+  const avgScore = scoreCount>0 ? (totalScore/scoreCount).toFixed(1) : '—';
+  const lastW = weights.length ? weights[weights.length-1].v : null;
+  const wChange = (lastW&&S.startWeight) ? (lastW-S.startWeight).toFixed(1) : null;
+  const missionPct = Math.round((logged/100)*100);
+
+  let streak=0, best=0, cur=0;
+  for(let n=1;n<=Math.min(tn,100);n++){
+    const ds=dateForDay(n); const e=ds?S.days[ds]:null;
+    if(e){ cur++; if(cur>best) best=cur; } else cur=0;
+  }
+  streak=0;
+  for(let n=Math.min(tn,100);n>=1;n--){
+    const ds=dateForDay(n); if(ds&&S.days[ds]) streak++; else break;
+  }
+
+  document.getElementById('hLogged').textContent=logged;
+  document.getElementById('hStreak').textContent=streak;
+  document.getElementById('hScore').textContent=totalScore.toFixed(1);
+  document.getElementById('hPct').textContent=missionPct+'%';
+  document.getElementById('hMoney').textContent='£'+totalMoney.toFixed(0);
+
+  const dLeft = Math.max(0, 100-Math.min(tn,100));
+  document.getElementById('promiseSub').textContent =
+    `Day ${Math.min(tn,100)} of 100. ${dLeft} days remaining. No soft weeks. No excuses.`;
+
+  document.getElementById('mLogged').textContent=logged;
+  document.getElementById('mRemain').textContent=(100-logged)+' remaining';
+  document.getElementById('mAvg').textContent=avgScore;
+  document.getElementById('mTotal').textContent='Total: '+totalScore.toFixed(1)+' pts';
+  document.getElementById('mWeight').textContent=lastW?lastW+'kg':'—';
+  document.getElementById('mWeightSub').textContent=S.startWeight?'Start: '+S.startWeight+' kg':'—';
+  document.getElementById('mWorkouts').textContent=workouts;
+  document.getElementById('mWorkoutPct').textContent=logged>0?Math.round((workouts/logged)*100)+'% hit rate':'0% hit rate';
+  document.getElementById('mStreak').textContent=streak;
+  document.getElementById('mBest').textContent='Best: '+best;
+  document.getElementById('mMoney').textContent='£'+totalMoney.toFixed(0);
+  document.getElementById('mMoneyAvg').textContent=logged>0?'£'+(totalMoney/logged).toFixed(2)+'/day avg':'£0/day avg';
+
+  const dayProgress = Math.min(tn, 100);
+  document.getElementById('progLabel').textContent='Day '+dayProgress+' of 100';
+  document.getElementById('progFill').style.width=dayProgress+'%';
+
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML='';
+  for(let n=1;n<=100;n++){
+    const ds=dateForDay(n);
+    const e=ds?S.days[ds]:null;
+    const isToday=n===tn, isPast=n<tn, isFuture=n>tn;
+    const cell=document.createElement('div');
+    cell.className='dc'+(e?' done':'')+(isToday?' today':'')+(isPast&&!e?' missed':'')+(isFuture?' future':'');
+    let icon='';
+    if(e){ icon=e.score>=8?'🔥':e.score>=5?'✓':'·'; }
+    else if(isToday){ icon='NOW'; }
+    cell.innerHTML=`<div class="dn">${n}</div><div class="di">${icon}</div>`;
+    if(n<=tn) cell.addEventListener('click',()=>openModal(n));
+    grid.appendChild(cell);
+  }
+
+  renderChart('wChart','wEmpty',weights,'v','kg','#e8002d');
+  renderChart('sChart','sEmpty',scores.slice(-30),'v','/10','#f59e0b');
+
+  document.getElementById('wNow').textContent=lastW||'—';
+  const wb=document.getElementById('wBadge');
+  if(wChange!==null){
+    wb.style.display='';
+    const ch=parseFloat(wChange);
+    wb.className='wbadge '+(ch<=0?'loss':'gain');
+    wb.textContent=(ch>0?'+':'')+wChange+' kg';
+  } else { wb.style.display='none'; }
+
+  renderHabits(tn);
+  renderStats(logged, workouts, totalMoney, avgScore, streak, best);
+}
+
+function renderChart(chartId, emptyId, data, valKey, unit, color){
+  const el=document.getElementById(chartId);
+  const empty=document.getElementById(emptyId);
+  Array.from(el.children).forEach(c=>{ if(c.classList.contains('bar')) el.removeChild(c); });
+  if(!data.length){ empty.style.display='flex'; return; }
+  empty.style.display='none';
+  const vals=data.map(d=>d[valKey]);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  const rng=mx-mn||1;
+  data.forEach(d=>{
+    const pct=((d[valKey]-mn)/rng)*100;
+    const bar=document.createElement('div');
+    bar.className='bar';
+    bar.style.height=Math.max(3,pct*1.2)+'px';
+    bar.style.background=color;
+    bar.innerHTML=`<div class="tip">Day ${d.n}: ${d[valKey]}${unit}</div>`;
+    el.appendChild(bar);
+  });
+}
+
+function renderHabits(tn){
+  const habits=[
+    {key:'noAlcohol',lbl:'No Alcohol',ico:'🚫'},
+    {key:'noTakeaway',lbl:'No Takeaway',ico:'🍕'},
+    {key:'workout',lbl:'Workout',ico:'💪',fn:v=>!!v},
+    {key:'dietHit',lbl:'Diet Hit',ico:'✅'},
+    {key:'mobility',lbl:'Mobility',ico:'🧘'},
+    {key:'promiseKept',lbl:'Promise Kept',ico:'⚡'},
+    {key:'photo',lbl:'Progress Photo',ico:'📸'},
+  ];
+  const last7=[];
+  for(let n=Math.max(1,tn-6);n<=Math.min(tn,100);n++){
+    const ds=dateForDay(n); last7.push(ds?S.days[ds]:null);
+  }
+  const el=document.getElementById('habitRows');
+  el.innerHTML='';
+  const allE=Object.values(S.days).filter(Boolean);
+  habits.forEach(h=>{
+    const total=allE.filter(e=>h.fn?h.fn(e[h.key]):e[h.key]).length;
+    const pct=allE.length>0?Math.round((total/allE.length)*100):0;
+    const dots=last7.map(e=>{
+      if(e===null) return '<div class="dot"></div>';
+      const v=h.fn?h.fn(e[h.key]):e[h.key];
+      return `<div class="dot ${v?'on':'off'}"></div>`;
+    }).join('');
+    el.innerHTML+=`<div class="hrow"><div class="hname"><span class="hicon">${h.ico}</span>${h.lbl}</div><div class="hdots">${dots}</div><div class="hpct">${pct}%</div></div>`;
+  });
+}
+
+function renderStats(logged, workouts, money, avgScore, streak, best){
+  const allE=Object.values(S.days).filter(Boolean);
+  const avg=key=>{
+    const f=allE.filter(e=>e[key]);
+    return f.length?(f.reduce((s,e)=>s+(e[key]||0),0)/f.length).toFixed(1):'—';
+  };
+  const avgMood=avg('mood'), avgSleep=avg('sleep'), avgWater=avg('water');
+  const avgSteps=allE.filter(e=>e.steps).length?Math.round(allE.reduce((s,e)=>s+(e.steps||0),0)/allE.filter(e=>e.steps).length).toLocaleString():'—';
+  const avgCals=allE.filter(e=>e.calActual).length?Math.round(allE.reduce((s,e)=>s+(e.calActual||0),0)/allE.filter(e=>e.calActual).length):'—';
+  const avgProt=allE.filter(e=>e.protein).length?Math.round(allE.reduce((s,e)=>s+(e.protein||0),0)/allE.filter(e=>e.protein).length):'—';
+  const rows=[
+    {ico:'😤',lbl:'Avg Mood',v:avgMood+'/10'},
+    {ico:'😴',lbl:'Avg Sleep',v:avgSleep+' hrs'},
+    {ico:'💧',lbl:'Avg Water',v:avgWater+' L'},
+    {ico:'👟',lbl:'Avg Steps',v:avgSteps},
+    {ico:'🍽️',lbl:'Avg Calories',v:avgCals},
+    {ico:'🥩',lbl:'Avg Protein',v:avgProt+'g'},
+    {ico:'💪',lbl:'Workouts Hit',v:workouts+' sessions'},
+    {ico:'🔥',lbl:'Best Streak',v:best+' days'},
+    {ico:'💰',lbl:'Total Saved',v:'£'+money.toFixed(2)},
+  ];
+  document.getElementById('statsRows').innerHTML=rows.map(r=>`<div class="srow"><div class="srow-l"><span class="hicon">${r.ico}</span>${r.lbl}</div><div class="srow-v">${r.v}</div></div>`).join('');
+}
+
+// ── CLICK OUTSIDE MODAL ──
+document.getElementById('logModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+// ── PWA: SERVICE WORKER ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.warn('SW failed:', e));
+  });
+}
+
+// ── PWA: INSTALL PROMPT ──
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!localStorage.getItem('ZE_dismissed')){
+    show('installBar');
+  }
+});
+
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  hide('installBar');
+  if(outcome === 'accepted') localStorage.setItem('ZE_dismissed','1');
+});
+
+function dismissInstall(){
+  hide('installBar');
+  localStorage.setItem('ZE_dismissed','1');
+}
+
+window.addEventListener('appinstalled', () => {
+  hide('installBar');
+  deferredPrompt = null;
+});
+
+// ── OFFLINE INDICATOR ──
+function updateOnline(){
+  const p = document.getElementById('offlinePill');
+  navigator.onLine ? p.classList.add('hidden') : p.classList.remove('hidden');
+}
+window.addEventListener('online', updateOnline);
+window.addEventListener('offline', updateOnline);
+updateOnline();
+
+// ── INIT ──
+if(S.startDate){ hide('setupOverlay'); render(); }
+else { document.getElementById('sDate').value = today(); }
+</script>
+</body>
+</html>

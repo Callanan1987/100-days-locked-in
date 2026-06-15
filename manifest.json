@@ -1,0 +1,18 @@
+{
+  "name": "100 Days. Zero Excuses.",
+  "short_name": "Zero Excuses",
+  "description": "100-day locked-in mission tracker. No soft weeks. No excuses.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#e8002d",
+  "orientation": "any",
+  "categories": ["fitness", "health", "lifestyle"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Log Today", "short_name": "Log", "url": "./index.html", "description": "Log today's mission" }
+  ]
+}
